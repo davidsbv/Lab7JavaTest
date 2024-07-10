@@ -11,6 +11,7 @@ import com.dperez.CarRegistry.service.model.Car;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -145,6 +147,11 @@ class CarServiceImplTest {
         // Simulación de una lista de coches válidos
         List<Car> cars = Arrays.asList(car1, car2);
 
+        // Simular no existencia de la Id
+        when(carRepository.existsById(1)).thenReturn(false);
+        when(carRepository.existsById(2)).thenReturn(false);
+
+        // Simular la existencia de la Marca
         when(brandRepository.findByNameIgnoreCase("Toyota")).thenReturn(Optional.of(toyotaBrandEntity));
         when(brandRepository.findByNameIgnoreCase("Honda")).thenReturn(Optional.of(hondaBrandEntity));
 
@@ -181,6 +188,33 @@ class CarServiceImplTest {
         assertEquals(2, result.size());
         assertEquals(car1.getId(), result.get(0).getId());
         assertEquals(car2.getId(), result.get(1).getId());
+    }
+
+    @Test
+    void addBunchCarsIdAlreadyExists() {
+
+        List<Car> cars = Arrays.asList(car1);
+
+        // Simula que el coche con ID 1 ya existe
+        when(carRepository.existsById(1)).thenReturn(true);
+
+        try {
+            // Captura la excepción y verifica su tipo y mensaje
+
+            CompletableFuture<List<Car>> resultFuture = carService.addBunchCars(cars);
+            assertThrows(ExecutionException.class, () -> resultFuture.get());
+
+        } catch (IllegalArgumentException e) {
+            assertEquals("The Id 1 already exists", e.getMessage());
+        }
+
+        // Verifica que el método existsById fue llamado una vez
+        verify(carRepository, times(1)).existsById(1);
+
+        // Verifica que no se llamaron los métodos siguientes
+        verify(brandRepository, never()).findByNameIgnoreCase(anyString());
+        verify(carEntityMapper, never()).carToCarEntity(any(Car.class));
+        verify(carRepository, never()).save(any(CarEntity.class));
     }
 
     @Test
