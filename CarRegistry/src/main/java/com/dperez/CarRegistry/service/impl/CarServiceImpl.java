@@ -43,6 +43,9 @@ import java.util.stream.Collectors;
     @Autowired
     private CarEntityMapper carEntityMapper;
 
+    @Autowired
+    private BrandEntityMapper brandEntityMapper;
+
 
     @Override
     public Car addCar(Car car) throws IllegalArgumentException {
@@ -62,28 +65,26 @@ import java.util.stream.Collectors;
 
         // Obtener la BrandEntity existente y pasar a Brand
         BrandEntity brandEntity = brandEntityOptional.get();
-        Brand brand = BrandEntityMapper.INSTANCE.brandEntityToBrand(brandEntity);
+        Brand brand = brandEntityMapper.brandEntityToBrand(brandEntity);
 
         // Asociar la BrandEntitiy existente al car
         car.setBrand(brand);
 
         // Se pasa car a carEntity para guardar
-        CarEntity carEntity = CarEntityMapper.INSTANCE.carToCarEntity(car);
+        CarEntity carEntity = carEntityMapper.carToCarEntity(car);
        // carEntity.setBrand((brand)); // Se asocia la brand existente
 
         // Se guarda la CarEntity en la base de datos
         CarEntity savedCarEntity = carRepository.save(carEntity);
 
         // Se devuelve el coche guardado como modelo de dominio
-        return CarEntityMapper.INSTANCE.carEntityToCar(savedCarEntity);
+        return carEntityMapper.carEntityToCar(savedCarEntity);
     }
 
     @Async("taskExecutor")
     @Override
     public CompletableFuture<List<Car>> addBunchCars(List<Car> cars) throws IllegalArgumentException {
         long starTime = System.currentTimeMillis();
-        // Captura el contexto de seguridad actual
-        SecurityContext securityContext = SecurityContextHolder.getContext();
 
         try {
             // Verificar si la id existe y si la marca está en la base de datos
@@ -100,13 +101,13 @@ import java.util.stream.Collectors;
 
                 // Toma la BrandEntity, se le asigna a cada CarEntity que se ha transformado previamente de Car
                 BrandEntity brandEntity = brandEntityOptional.get();
-                CarEntity carEntity = CarEntityMapper.INSTANCE.carToCarEntity(car);
+                CarEntity carEntity = carEntityMapper.carToCarEntity(car);
                 carEntity.setBrand(brandEntity);
 
                 // Se guarda el CarEntity con los datos validados, en savedCar para retornarlos al stream como Car
                 CarEntity savedCarEntity = carRepository.save(carEntity);
 
-                return CarEntityMapper.INSTANCE.carEntityToCar(savedCarEntity);
+                return carEntityMapper.carEntityToCar(savedCarEntity);
             }).toList();
 
             long endTime = System.currentTimeMillis();
@@ -114,15 +115,11 @@ import java.util.stream.Collectors;
 
             // Se devulven los coches guardados
             return CompletableFuture.completedFuture(addedCars);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             log.error("Error adding several cars");
-            throw new RuntimeException(e);
-        } finally {
-            SecurityContextHolder.setContext(securityContext);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
-
-
 
     @Override
     public Car getCarById(Integer id) {

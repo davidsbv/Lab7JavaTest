@@ -22,13 +22,20 @@ public class CarEntity {
     private BrandEntity brand;
 
     private String model;
+
     private Integer mileage;
+
     private Double price;
+
     private Integer year;
+
     private String description;
+
     private String color;
+
     @Column(name = "fuel_type")
     private String fuelType;
+
     @Column(name = "num_doors")
     private Integer numDoors;
 }
