@@ -3,12 +3,14 @@ package com.dperez.CarRegistry.repository.mapper;
 import com.dperez.CarRegistry.repository.entity.BrandEntity;
 import com.dperez.CarRegistry.service.model.Brand;
 import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-11T16:52:38+0200",
-    comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.8 (Oracle Corporation)"
+    date = "2024-07-11T22:18:07+0200",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.8 (Oracle Corporation)"
 )
+@Component
 public class BrandEntityMapperImpl implements BrandEntityMapper {
 
     @Override
@@ -17,14 +19,14 @@ public class BrandEntityMapperImpl implements BrandEntityMapper {
             return null;
         }
 
-        Brand brand = new Brand();
+        Brand.BrandBuilder brand = Brand.builder();
 
-        brand.setId( brandEntity.getId() );
-        brand.setName( brandEntity.getName() );
-        brand.setWarranty( brandEntity.getWarranty() );
-        brand.setCountry( brandEntity.getCountry() );
+        brand.id( brandEntity.getId() );
+        brand.name( brandEntity.getName() );
+        brand.warranty( brandEntity.getWarranty() );
+        brand.country( brandEntity.getCountry() );
 
-        return brand;
+        return brand.build();
     }
 
     @Override
@@ -33,13 +35,13 @@ public class BrandEntityMapperImpl implements BrandEntityMapper {
             return null;
         }
 
-        BrandEntity brandEntity = new BrandEntity();
+        BrandEntity.BrandEntityBuilder brandEntity = BrandEntity.builder();
 
-        brandEntity.setId( brand.getId() );
-        brandEntity.setName( brand.getName() );
-        brandEntity.setWarranty( brand.getWarranty() );
-        brandEntity.setCountry( brand.getCountry() );
+        brandEntity.id( brand.getId() );
+        brandEntity.name( brand.getName() );
+        brandEntity.warranty( brand.getWarranty() );
+        brandEntity.country( brand.getCountry() );
 
-        return brandEntity;
+        return brandEntity.build();
     }
 }
