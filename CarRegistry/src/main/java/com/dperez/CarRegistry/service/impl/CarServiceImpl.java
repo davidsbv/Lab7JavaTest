@@ -129,7 +129,8 @@ import java.util.stream.Collectors;
 
         log.info("Searching id: " + id);
         // Si se encuentra devuelve el objeto car. En caso contrario devuelve null.
-        return carEntityOptional.map(CarEntityMapper.INSTANCE::carEntityToCar).orElse(null);
+//        return carEntityOptional.map(CarEntityMapper.INSTANCE::carEntityToCar).orElse(null); ERROR EN LOS TEST
+        return carEntityOptional.map(carEntity -> carEntityMapper.carEntityToCar(carEntity)).orElse(null);
     }
 
 
@@ -153,7 +154,7 @@ import java.util.stream.Collectors;
             // Se obtiene la BrandEntity existente y se asocia a la carEntity a actualizar
             BrandEntity brandEntity = brandEntityOptional.get();
             log.info("Marca " + brandEntity.toString() + " encontrada");
-            CarEntity carEntity = CarEntityMapper.INSTANCE.carToCarEntity(car);
+            CarEntity carEntity = carEntityMapper.carToCarEntity(car);
 
             // Seteo de la id y la marca
             carEntity.setId(id);
@@ -161,7 +162,7 @@ import java.util.stream.Collectors;
 
             // Actualiza los datos y devuelve el objeto actualizado.
             CarEntity updatedCarEntity = carRepository.save(carEntity);
-            return CarEntityMapper.INSTANCE.carEntityToCar(updatedCarEntity);
+            return carEntityMapper.carEntityToCar(updatedCarEntity);
         }
 
     }
@@ -175,7 +176,7 @@ import java.util.stream.Collectors;
         List<Car> updatedCars = cars.stream().map(car -> {
 
             // Pasar de Brand a BrandEntity y comprobar que está dada de alta en la base de datos
-            BrandEntity brandEntity = BrandEntityMapper.INSTANCE.brandToBrandEntity(car.getBrand());
+            BrandEntity brandEntity = brandEntityMapper.brandToBrandEntity(car.getBrand());
             Optional<BrandEntity> brandEntityOptional = brandRepository.findByNameIgnoreCase(brandEntity.getName());
 
             // Comprobación de Brand
@@ -191,7 +192,7 @@ import java.util.stream.Collectors;
             brandEntity = brandEntityOptional.get();
 
             // Pasamos los Car a CarEntity
-            CarEntity carEntity = CarEntityMapper.INSTANCE.carToCarEntity(car);
+            CarEntity carEntity = carEntityMapper.carToCarEntity(car);
 
             // Se setea BrandEntity para su CarEntity
             carEntity.setBrand(brandEntity);
@@ -200,7 +201,7 @@ import java.util.stream.Collectors;
             CarEntity updatedCarEntity = carRepository.save(carEntity);
 
             // Se devuelve el Car actualizado
-            return CarEntityMapper.INSTANCE.carEntityToCar(updatedCarEntity);
+            return carEntityMapper.carEntityToCar(updatedCarEntity);
         }).toList();
 
         long endTime = System.currentTimeMillis();
@@ -233,7 +234,7 @@ import java.util.stream.Collectors;
         //MODIFICADO CarEntityMapper.INSTANCE::carEntityToCar POR carEntityMapper::carEntityToCar
         // mejora la velocidad porque no tiene que cargar toda la clase por debajo
         List<Car> allCars = carRepository.findAll().stream()
-                .map(carEntityMapper::carEntityToCar)
+                .map(carEntity ->  carEntityMapper.carEntityToCar(carEntity))
                 .toList();
 
         long endTime = System.currentTimeMillis();
