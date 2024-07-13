@@ -12,8 +12,4 @@ public class CarRegistryApplication {
 		SpringApplication.run(CarRegistryApplication.class, args);
 	}
 
-	@Bean
-	public ObjectMapper objectMapper() {
-		return new ObjectMapper().findAndRegisterModules();
-	}
 }

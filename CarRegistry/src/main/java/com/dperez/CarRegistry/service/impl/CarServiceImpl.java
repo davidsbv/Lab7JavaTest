@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
         // Verifica si la Id ya existe. Lanza una excepción en caso afirmativo.
         if(car.getId() != null && carRepository.existsById(car.getId())){
 
-            throw new IllegalArgumentException("The Id already" + car.getId() +" exists");
+            throw new IllegalArgumentException("The Id " + car.getId() +" already exists");
         }
 
         // Verificar si la marca existe

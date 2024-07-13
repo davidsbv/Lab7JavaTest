@@ -39,9 +39,9 @@ public class CarController {
         try {
             // Se convierte carDTO a Car y se utiliza en la llmada al método addCar.
             // Cuando se guarda se devuelve en newCarDTO  y se muestra la respuesta
-            Car car = CarDTOMapper.INSTANCE.carDTOToCar(carDTO);
+            Car car = carDTOMapper.carDTOToCar(carDTO);
             Car newCar = carService.addCar(car);
-            CarDTOAndBrand newCarDTOAndBrand = carDTOAndBrandMapper.INSTANCE.carToCarDTOAndBrand(newCar);
+            CarDTOAndBrand newCarDTOAndBrand = carDTOAndBrandMapper.carToCarDTOAndBrand(newCar);
             log.info("New Car added");
             return ResponseEntity.ok(newCarDTOAndBrand);
 
@@ -76,13 +76,10 @@ public class CarController {
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(carsDTOAndBrand);
 
 
-        } catch (IllegalArgumentException e){
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().build();
-
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IllegalArgumentException | InterruptedException | ExecutionException e){
             log.error(e.getMessage());
             return ResponseEntity.internalServerError().build();
+
         }
     }
 
@@ -137,7 +134,7 @@ public class CarController {
         public ResponseEntity<List<CarDTOAndBrand>> updateBunch(@RequestBody List<CarDTO> carDTOs){
 
         // Mapeo de carDTOs a Car
-        List<Car> cars = carDTOs.stream().map(carDTOMapper.INSTANCE::carDTOToCar).toList();
+        List<Car> cars = carDTOs.stream().map(carDTO ->  carDTOMapper.carDTOToCar(carDTO)).toList();
 
         // Llamada al método asíncrono
         CompletableFuture<List<Car>> futureCars = carService.updateBunchCars(cars);
@@ -155,18 +152,16 @@ public class CarController {
             // Retorno del resultado de la actualización
             return ResponseEntity.ok(updatedCarDTOsAndBrand);
 
-        } catch (IllegalArgumentException e) {
-            log.error("Error updating cars");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
 
-        } catch (InterruptedException | ExecutionException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
         }
     }
 
     // Borrar un coche por id
     @DeleteMapping("delete-car/{id}")
-    @PreAuthorize("hasRole('VENDOR')")
+//    @PreAuthorize("hasRole('VENDOR')")
     public ResponseEntity<?> deleteCarById(@PathVariable Integer id){
 
         try {
@@ -194,7 +189,7 @@ public class CarController {
 
             // Mapea la lista con objetos Car a una lista con objetos CarDTOAndBrand
             List<CarDTOAndBrand> carDTOsAndBrand = carRecovered.stream()
-                        .map(carDTOAndBrandMapper.INSTANCE::carToCarDTOAndBrand).toList();
+                        .map(car ->  carDTOAndBrandMapper.carToCarDTOAndBrand(car)).toList();
 
             // Devuelve la respuesta con la lista de CarDTOAndBrand
             return ResponseEntity.ok(carDTOsAndBrand);
