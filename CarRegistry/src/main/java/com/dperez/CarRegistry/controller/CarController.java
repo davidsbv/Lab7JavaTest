@@ -9,6 +9,7 @@ import com.dperez.CarRegistry.service.model.Car;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -56,12 +57,12 @@ public class CarController {
     }
 
     // Añadir lista de coches
-    @PostMapping("/add-bunch")
-//    @PreAuthorize("hasRole('VENDOR')")
+    @PostMapping(value = "/add-bunch", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('VENDOR')")
     public ResponseEntity<List<CarDTOAndBrand>> addBunchCars(@RequestBody List<CarDTO> carDTOs){
 
         // Mapear los carDTOs a Car
-        List<Car> carsToAdd = carDTOs.stream().map(carDTOMapper.INSTANCE::carDTOToCar).toList();
+        List<Car> carsToAdd = carDTOs.stream().map(car -> carDTOMapper.carDTOToCar(car)).toList();
 
         // LLamada al servicio asíncrono
         CompletableFuture<List<Car>> futrureCars = carService.addBunchCars(carsToAdd);
@@ -70,8 +71,10 @@ public class CarController {
             // Espera a que acabe el método asíncrono
             List<Car> addedCars = futrureCars.get();
             List<CarDTOAndBrand> carsDTOAndBrand = addedCars.stream()
-                    .map(carDTOAndBrandMapper.INSTANCE::carToCarDTOAndBrand).toList();
-            return ResponseEntity.ok(carsDTOAndBrand);
+                    .map(car -> carDTOAndBrandMapper.carToCarDTOAndBrand(car)).toList();
+//            return ResponseEntity.ok(carsDTOAndBrand);
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(carsDTOAndBrand);
+
 
         } catch (IllegalArgumentException e){
             log.error(e.getMessage());
@@ -84,8 +87,8 @@ public class CarController {
     }
 
     // Obtener información de un coche por id
-    @GetMapping("get-car/{id}")
-    @PreAuthorize("hasRole('CLIENT')")
+    @GetMapping(value = "get-car/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<?> getCarById(@PathVariable Integer id){
 
         // Se busca la id solicitada. Si existe se devuelve la información del coche y la marca.
@@ -93,8 +96,8 @@ public class CarController {
         Car car = carService.getCarById(id);
         if (car != null){
             log.info("Car info loaded");
-            CarDTOAndBrand carDTOAndBrand = carDTOAndBrandMapper.INSTANCE.carToCarDTOAndBrand(car);
-            return ResponseEntity.ok(carDTOAndBrand);
+            CarDTOAndBrand carDTOAndBrand = carDTOAndBrandMapper.carToCarDTOAndBrand(car);
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(carDTOAndBrand);
         }
         else {
             log.error("Id does not exist");

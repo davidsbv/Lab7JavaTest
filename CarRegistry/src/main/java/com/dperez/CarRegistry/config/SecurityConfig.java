@@ -54,8 +54,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/users/**", "/login", "/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/cars/**", "/brands/**").hasRole("VENDOR")
-                        .requestMatchers(HttpMethod.GET, "/cars/**",  "/brands/**").hasRole("CLIENT")
-                        .requestMatchers(HttpMethod.GET, "/cars/**",  "/brands/**").hasRole("VENDOR")
+                        .requestMatchers(HttpMethod.GET, "/cars/**",  "/brands/**").hasAnyRole("CLIENT", "VENDOR")
+                        .requestMatchers(HttpMethod.GET, "/cars/**",  "/brands/**").hasAnyRole("CLIENT", "VENDOR")
                         .requestMatchers(HttpMethod.PUT, "/cars/**", "/brands/**").hasRole("VENDOR")
                         .requestMatchers(HttpMethod.DELETE, "/cars/**", "/brands/**").hasRole("VENDOR")
                         .anyRequest().authenticated())
