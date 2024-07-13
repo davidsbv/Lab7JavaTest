@@ -81,8 +81,4 @@ public class SecurityConfigTest {
 
         return new InMemoryUserDetailsManager(vendor, client);
     }
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return NoOpPasswordEncoder.getInstance();
-//    }
 }

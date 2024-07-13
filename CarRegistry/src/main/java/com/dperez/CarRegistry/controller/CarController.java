@@ -65,11 +65,11 @@ public class CarController {
         List<Car> carsToAdd = carDTOs.stream().map(car -> carDTOMapper.carDTOToCar(car)).toList();
 
         // LLamada al servicio asíncrono
-        CompletableFuture<List<Car>> futrureCars = carService.addBunchCars(carsToAdd);
+        CompletableFuture<List<Car>> futureCars = carService.addBunchCars(carsToAdd);
 
         try {
             // Espera a que acabe el método asíncrono
-            List<Car> addedCars = futrureCars.get();
+            List<Car> addedCars = futureCars.get();
             List<CarDTOAndBrand> carsDTOAndBrand = addedCars.stream()
                     .map(car -> carDTOAndBrandMapper.carToCarDTOAndBrand(car)).toList();
 //            return ResponseEntity.ok(carsDTOAndBrand);
@@ -107,16 +107,16 @@ public class CarController {
 
     // Actualizar un coche
     @PutMapping("update-car/{id}")
-    @PreAuthorize("hasRole('VENDOR')")
+//    @PreAuthorize("hasRole('VENDOR')")
         public ResponseEntity<?> updateCarById(@PathVariable Integer id, @RequestBody CarDTO carDto){
 
         try {
             // Mapear carDTO a Car y llamada al método updateCarById
-            Car car = CarDTOMapper.INSTANCE.carDTOToCar(carDto);
+            Car car = carDTOMapper.carDTOToCar(carDto);
             Car carToUpdate = carService.updateCarById(id, car);
 
             // Mapear Car a CarDTO y devolver CarDTO actualizado
-            CarDTOAndBrand carUpdated = carDTOAndBrandMapper.INSTANCE.carToCarDTOAndBrand(carToUpdate);
+            CarDTOAndBrand carUpdated = carDTOAndBrandMapper.carToCarDTOAndBrand(carToUpdate);
             log.info("Car updated");
             return ResponseEntity.ok(carUpdated);
 
