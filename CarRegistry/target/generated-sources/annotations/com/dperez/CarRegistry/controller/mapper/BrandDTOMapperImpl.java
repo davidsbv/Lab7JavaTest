@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-07-13T12:03:21+0200",
+    date = "2024-07-14T12:38:15+0200",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.8 (Oracle Corporation)"
 )
 @Component
@@ -19,14 +19,14 @@ public class BrandDTOMapperImpl implements BrandDTOMapper {
             return null;
         }
 
-        BrandDTO brandDTO = new BrandDTO();
+        BrandDTO.BrandDTOBuilder brandDTO = BrandDTO.builder();
 
-        brandDTO.setId( brand.getId() );
-        brandDTO.setName( brand.getName() );
-        brandDTO.setWarranty( brand.getWarranty() );
-        brandDTO.setCountry( brand.getCountry() );
+        brandDTO.id( brand.getId() );
+        brandDTO.name( brand.getName() );
+        brandDTO.warranty( brand.getWarranty() );
+        brandDTO.country( brand.getCountry() );
 
-        return brandDTO;
+        return brandDTO.build();
     }
 
     @Override
@@ -35,13 +35,13 @@ public class BrandDTOMapperImpl implements BrandDTOMapper {
             return null;
         }
 
-        Brand brand = new Brand();
+        Brand.BrandBuilder brand = Brand.builder();
 
-        brand.setId( brandDTO.getId() );
-        brand.setName( brandDTO.getName() );
-        brand.setWarranty( brandDTO.getWarranty() );
-        brand.setCountry( brandDTO.getCountry() );
+        brand.id( brandDTO.getId() );
+        brand.name( brandDTO.getName() );
+        brand.warranty( brandDTO.getWarranty() );
+        brand.country( brandDTO.getCountry() );
 
-        return brand;
+        return brand.build();
     }
 }

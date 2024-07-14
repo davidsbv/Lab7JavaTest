@@ -24,13 +24,12 @@ class CarRepositoryTest {
     private CarRepository carRepository;
 
     private CarEntity testCar;
-    private BrandEntity testBrand;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        testBrand = BrandEntity.builder()
+        BrandEntity testBrand = BrandEntity.builder()
                 .id(1)
                 .name("Toyota")
                 .build();
