@@ -26,7 +26,11 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request){
-        return ResponseEntity.ok(authenticationServiceImpl.login(request));
+        try {
+            return ResponseEntity.ok(authenticationServiceImpl.login(request));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 
 

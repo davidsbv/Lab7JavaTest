@@ -1,7 +1,6 @@
 package com.dperez.CarRegistry.controller;
 
 
-import com.dperez.CarRegistry.config.PasswordConfig;
 import com.dperez.CarRegistry.config.SecurityConfigTest;
 import com.dperez.CarRegistry.controller.dtos.BrandDTO;
 import com.dperez.CarRegistry.controller.dtos.CarDTO;
@@ -10,11 +9,9 @@ import com.dperez.CarRegistry.controller.mapper.CarDTOAndBrandMapper;
 import com.dperez.CarRegistry.controller.mapper.CarDTOMapper;
 import com.dperez.CarRegistry.filter.JwtAuthenticationFilter;
 import com.dperez.CarRegistry.service.CarService;
-import com.dperez.CarRegistry.service.impl.JwtService;
 import com.dperez.CarRegistry.service.impl.UserServiceImpl;
 import com.dperez.CarRegistry.service.model.Brand;
 import com.dperez.CarRegistry.service.model.Car;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,18 +32,14 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-//TODO: Comprobar que funciona sin los @Import
 @ExtendWith(SpringExtension.class)
-@Import({SecurityConfigTest.class, JwtAuthenticationFilter.class, JwtService.class, PasswordConfig.class})
+@Import(SecurityConfigTest.class)
 @WebMvcTest(CarController.class)
 class CarControllerTest{
 
@@ -55,8 +48,10 @@ class CarControllerTest{
 
     @Autowired
     private WebApplicationContext context;
+
     @Autowired
     private ObjectMapper objectMapper;
+
     @Autowired
     private CarController carController;
 
@@ -76,8 +71,6 @@ class CarControllerTest{
     private CarDTOAndBrandMapper carDTOAndBrandMapper;
 
     private Car carToyota, carHonda;
-    private Brand brandToyota, brandHonda;
-    private BrandDTO brandDTOToyota, brandDTOHonda;
     private CarDTO carDTOToyota, carDTOHonda;
     private CarDTOAndBrand carDTOAndBrandToyota, carDTOAndBrandHonda;
 
@@ -87,11 +80,11 @@ class CarControllerTest{
                 .apply(springSecurity())
                 .build();
 
-        brandToyota = Brand.builder().id(1).name("Toyota").build();
-        brandHonda = Brand.builder().id(2).name("Honda").build();
+        Brand brandToyota = Brand.builder().id(1).name("Toyota").build();
+        Brand brandHonda = Brand.builder().id(2).name("Honda").build();
 
-        brandDTOToyota = BrandDTO.builder().id(1).name("Toyota").build();
-        brandDTOHonda = BrandDTO.builder().id(2).name("Honda").build();
+        BrandDTO brandDTOToyota = BrandDTO.builder().id(1).name("Toyota").build();
+        BrandDTO brandDTOHonda = BrandDTO.builder().id(2).name("Honda").build();
 
         carDTOAndBrandToyota = new CarDTOAndBrand();
         carDTOAndBrandToyota.setBrand(brandDTOToyota);
@@ -426,58 +419,52 @@ class CarControllerTest{
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
     void deleteCarById_Success() throws Exception {
         // Given
-        Integer carId = 1;
+        Integer idSearched = 1;
 
         // When
-        doNothing().when(carService).deleteCarById(carId);
+        doNothing().when(carService).deleteCarById(idSearched);
 
         // Then
-        mockMvc.perform(delete("/cars/delete-car/" + carId))
+        mockMvc.perform(delete("/cars/delete-car/" + idSearched))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Deleted Car with Id: " + carId));
+                .andExpect(content().string("Deleted Car with Id: " + idSearched));
 
-        verify(carService, times(1)).deleteCarById(carId);
+        verify(carService, times(1)).deleteCarById(idSearched);
     }
 
     @Test
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
     void deleteCarById_NotFound() throws Exception {
         // Given
-        Integer carId = 999;
+        Integer idSearched = 77;
 
         // When
-        doThrow(new IllegalArgumentException("Car not found with id: " + carId))
-                .when(carService).deleteCarById(carId);
+        doThrow(new IllegalArgumentException("Car not found with id: " + idSearched))
+                .when(carService).deleteCarById(idSearched);
 
         // Then
-        mockMvc.perform(delete("/cars/delete-car/" + carId))
+        mockMvc.perform(delete("/cars/delete-car/" + idSearched))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("Car not found with id: " + carId));
+                .andExpect(content().string("Car not found with id: " + idSearched));
 
-        verify(carService, times(1)).deleteCarById(carId);
+        verify(carService, times(1)).deleteCarById(idSearched);
     }
 
     @Test
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
     void deleteCarById_InternalServerError() throws Exception {
         // Given
-        Integer carId = 1;
+        Integer idSearched = 1;
 
         // When
         doThrow(new RuntimeException("Unexpected error"))
-                .when(carService).deleteCarById(carId);
+                .when(carService).deleteCarById(idSearched);
 
         // Then
-        mockMvc.perform(delete("/cars/delete-car/" + carId))
+        mockMvc.perform(delete("/cars/delete-car/" + idSearched))
                 .andExpect(status().isInternalServerError());
 
-        verify(carService, times(1)).deleteCarById(carId);
+        verify(carService, times(1)).deleteCarById(idSearched);
     }
-//    @Test
-//    @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
-//    void deleteCarById(){
-//
-//    }
-
 
 }
