@@ -20,14 +20,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
+    private static final RoleName DEFAULT_ROLE = RoleName.ROLE_CLIENT; // Rol por defecto
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserServiceImpl userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
-    private static final RoleName DEFAULT_ROLE = RoleName.ROLE_CLIENT; // Rol por defecto
 
     @Override
     public LoginResponse signup(SignUpRequest request) throws BadRequestException {
@@ -55,7 +54,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public LoginResponse login(LoginRequest request){
+    public LoginResponse login(LoginRequest request) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUser(), request.getPassword()));

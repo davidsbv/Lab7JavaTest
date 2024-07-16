@@ -15,8 +15,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -32,7 +30,7 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userService.userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder);
@@ -42,8 +40,8 @@ public class SecurityConfig {
 
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
-        return  config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
@@ -54,8 +52,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/users/**", "/login", "/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/cars/**", "/brands/**").hasRole("VENDOR")
-                        .requestMatchers(HttpMethod.GET, "/cars/**",  "/brands/**").hasAnyRole("CLIENT", "VENDOR")
-                        .requestMatchers(HttpMethod.GET, "/cars/**",  "/brands/**").hasAnyRole("CLIENT", "VENDOR")
+                        .requestMatchers(HttpMethod.GET, "/cars/**", "/brands/**").hasAnyRole("CLIENT", "VENDOR")
+                        .requestMatchers(HttpMethod.GET, "/cars/**", "/brands/**").hasAnyRole("CLIENT", "VENDOR")
                         .requestMatchers(HttpMethod.PUT, "/cars/**", "/brands/**").hasRole("VENDOR")
                         .requestMatchers(HttpMethod.DELETE, "/cars/**", "/brands/**").hasRole("VENDOR")
                         .anyRequest().authenticated())

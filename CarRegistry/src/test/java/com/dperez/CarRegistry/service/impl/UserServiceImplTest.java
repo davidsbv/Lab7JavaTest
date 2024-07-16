@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.rmi.server.UID;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +27,7 @@ class UserServiceImplTest {
     private UserServiceImpl userService;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
 
         userService = new UserServiceImpl(userRepository);
     }
@@ -52,7 +51,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void userDetailsService_LoadUserByUsername_NotFound(){
+    void userDetailsService_LoadUserByUsername_NotFound() {
 
         String email = "nonExistentUser@test.com";
         when(userRepository.findByMail(email)).thenReturn(Optional.empty());
@@ -62,6 +61,7 @@ class UserServiceImplTest {
         assertThrows(UsernameNotFoundException.class, () -> {
             userDetailsService.loadUserByUsername(email);
         });
+
         verify(userRepository, times(1)).findByMail(email);
 
     }

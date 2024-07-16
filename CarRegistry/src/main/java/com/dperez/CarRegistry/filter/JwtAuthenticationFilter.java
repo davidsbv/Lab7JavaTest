@@ -1,6 +1,5 @@
 package com.dperez.CarRegistry.filter;
 
-import com.dperez.CarRegistry.service.UserService;
 import com.dperez.CarRegistry.service.impl.JwtService;
 import com.dperez.CarRegistry.service.impl.UserServiceImpl;
 import io.micrometer.common.util.StringUtils;
@@ -11,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -39,10 +37,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String userEmail;
 
 
-
         if (StringUtils.isEmpty(authHeader)) {
             log.error("Header error");
-            log.error("authHeader -> {}",authHeader);
+            log.error("authHeader -> {}", authHeader);
             filterChain.doFilter(request, response);
             return;
         }

@@ -7,7 +7,7 @@ import org.apache.coyote.BadRequestException;
 
 public interface AuthenticationService {
 
-    public LoginResponse signup(SignUpRequest request) throws BadRequestException;
+    LoginResponse signup(SignUpRequest request) throws BadRequestException;
 
-    public LoginResponse login(LoginRequest request);
+    LoginResponse login(LoginRequest request);
 }

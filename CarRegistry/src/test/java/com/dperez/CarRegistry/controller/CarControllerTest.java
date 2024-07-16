@@ -24,7 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -32,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @Import(SecurityConfigTest.class)
 @WebMvcTest(CarController.class)
-class CarControllerTest{
+class CarControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -75,7 +75,7 @@ class CarControllerTest{
     private CarDTOAndBrand carDTOAndBrandToyota, carDTOAndBrandHonda;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
@@ -105,15 +105,15 @@ class CarControllerTest{
     // TESTS add-car
     @Test
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
-    void addCar_Success() throws Exception{
+    void addCar_Success() throws Exception {
 
         when(carDTOMapper.carDTOToCar(any(CarDTO.class))).thenReturn(carToyota);
         when(carService.addCar(any(Car.class))).thenReturn(carToyota);
         when(carDTOAndBrandMapper.carToCarDTOAndBrand(any(Car.class))).thenReturn(carDTOAndBrandToyota);
 
         mockMvc.perform(post("/cars/add-car")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(carDTOToyota)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(carDTOToyota)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.brand.name").value("Toyota"))
                 .andExpect(jsonPath("$.model").value("Corolla"));
@@ -131,8 +131,8 @@ class CarControllerTest{
                 .thenThrow(new IllegalArgumentException("Car with this ID already exists"));
 
         mockMvc.perform(post("/cars/add-car")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(carDTOToyota)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(carDTOToyota)))
                 .andExpect(status().isConflict())
                 .andExpect(content().string("Car with this ID already exists"));
 
@@ -142,14 +142,13 @@ class CarControllerTest{
     @Test
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
     void addCar_InternalServerError() throws Exception {
-        // When
+
         when(carDTOMapper.carDTOToCar(any(CarDTO.class))).thenReturn(carToyota);
         when(carService.addCar(any(Car.class))).thenThrow(new RuntimeException("Unexpected error"));
 
-        // Then
         mockMvc.perform(post("/cars/add-car")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(carDTOToyota)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(carDTOToyota)))
                 .andExpect(status().isInternalServerError());
 
         verify(carService, times(1)).addCar(any(Car.class));
@@ -160,7 +159,7 @@ class CarControllerTest{
     void addBunchCars_Success() throws Exception {
 
         List<CarDTO> carDTOs = Arrays.asList(carDTOToyota, carDTOHonda);
-        List<Car> cars = Arrays.asList(carToyota,carHonda);
+        List<Car> cars = Arrays.asList(carToyota, carHonda);
         List<CarDTOAndBrand> carDTOAndBrands = Arrays.asList(carDTOAndBrandToyota, carDTOAndBrandHonda);
 
         when(carDTOMapper.carDTOToCar(any(CarDTO.class))).thenAnswer(invocation -> {
@@ -174,8 +173,8 @@ class CarControllerTest{
         });
 
         mockMvc.perform(post("/cars/add-bunch")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(carDTOs)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(carDTOs)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -202,53 +201,47 @@ class CarControllerTest{
         );
 
         mockMvc.perform(post("/cars/add-bunch")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(carDTOs)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(carDTOs)))
                 .andExpect(status().isInternalServerError());
 
         verify(carService, times(1)).addBunchCars(anyList());
     }
 
-
-
     // TESTS updateCarById
     @Test
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
-    void updateCarById_Found () throws Exception {
-       // Given
+    void updateCarById_Found() throws Exception {
+
         Integer idSearched = 1;
 
-        // when
         when(carDTOMapper.carDTOToCar(any(CarDTO.class))).thenReturn(carToyota);
         when(carService.updateCarById(eq(idSearched), any(Car.class))).thenReturn(carToyota);
         when(carDTOAndBrandMapper.carToCarDTOAndBrand(any(Car.class))).thenReturn(carDTOAndBrandToyota);
 
-        // Then
         mockMvc.perform(put("/cars/update-car/" + idSearched)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(carDTOToyota)))
-                        .andExpect(jsonPath("$.model").value("Corolla"))
-                        .andExpect(status().isOk());
+                .andExpect(jsonPath("$.model").value("Corolla"))
+                .andExpect(status().isOk());
 
-        verify(carService, times(1)).updateCarById(idSearched,carToyota);
+        verify(carService, times(1)).updateCarById(idSearched, carToyota);
 
     }
 
     @Test
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
-    void updateCarById_NotFound () throws Exception {
-        // Given
+    void updateCarById_NotFound() throws Exception {
+
         Integer idSearched = 77;
 
-        // When
         when(carDTOMapper.carDTOToCar(any(CarDTO.class))).thenReturn(carToyota);
         when(carService.updateCarById(eq(idSearched), any(Car.class)))
                 .thenThrow(new IllegalArgumentException("Car not found"));
 
-        // Then
         mockMvc.perform(put("/cars/update-car/" + idSearched)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(carDTOToyota)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(carDTOToyota)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Car not found"));
 
@@ -260,22 +253,21 @@ class CarControllerTest{
     void updateCarById_InternalServerError() throws Exception {
 
         when(carDTOMapper.carDTOToCar(any(CarDTO.class))).thenReturn(carToyota);
-        when(carService.updateCarById(eq(1),any(Car.class)))
+        when(carService.updateCarById(eq(1), any(Car.class)))
                 .thenThrow(new RuntimeException("Unexpected error"));
 
         mockMvc.perform(put("/cars/update-car/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(carDTOToyota)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(carDTOToyota)))
                 .andExpect(status().isInternalServerError());
-
     }
 
     @Test
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
     void updateBunch() throws Exception {
+
         List<CarDTO> carDTOs = Arrays.asList(carDTOToyota, carDTOHonda);
         List<Car> cars = Arrays.asList(carToyota, carHonda);
-        List<CarDTOAndBrand> carDTOAndBrands= Arrays.asList(carDTOAndBrandToyota,carDTOAndBrandHonda);
 
         when(carDTOMapper.carDTOToCar(any(CarDTO.class))).thenAnswer(invocation -> {
             CarDTO dto = invocation.getArgument(0);
@@ -288,8 +280,8 @@ class CarControllerTest{
         });
 
         mockMvc.perform(put("/cars/update-bunch")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(carDTOs)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(carDTOs)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -310,7 +302,7 @@ class CarControllerTest{
                 CompletableFuture.failedFuture(new IllegalArgumentException("Error in Data Cars"))
         );
 
-        MvcResult result = mockMvc.perform(put("/cars/update-bunch")
+        mockMvc.perform(put("/cars/update-bunch")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(carDTOs)))
                 .andExpect(status().isInternalServerError())
@@ -323,16 +315,14 @@ class CarControllerTest{
     @Test
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
     void updateBunch_InternalServerError() throws Exception {
-        // Given
+
         List<CarDTO> carDTOs = Arrays.asList(carDTOToyota, carDTOHonda);
 
-        // When
         when(carDTOMapper.carDTOToCar(any(CarDTO.class))).thenReturn(carToyota);
         when(carService.updateBunchCars(anyList())).thenReturn(
                 CompletableFuture.failedFuture(new RuntimeException("Unexpected error"))
         );
 
-        // Then
         mockMvc.perform(put("/cars/update-bunch")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(carDTOs)))
@@ -346,11 +336,9 @@ class CarControllerTest{
     @WithMockUser(username = "vendor@vendor.com", password = "vendorpass", roles = "VENDOR")
     void getCarById_Found() throws Exception {
 
-        // When
         when(carService.getCarById(1)).thenReturn(carToyota);
         when(carDTOAndBrandMapper.carToCarDTOAndBrand(any(Car.class))).thenReturn(carDTOAndBrandToyota);
 
-        // Then
         this.mockMvc
                 .perform(MockMvcRequestBuilders.get("/cars/get-car/1"))
                 .andExpect(status().isOk())
@@ -359,16 +347,13 @@ class CarControllerTest{
 
     @Test
     @WithMockUser(username = "user@user.com", password = "userpass", roles = "CLIENT")
-    void getCarById_NotFound() throws Exception{
-        // Given
+    void getCarById_NotFound() throws Exception {
+
         Integer idSearched = 77;
 
-        // When
         when(carService.getCarById(idSearched)).thenReturn(null);
 
-        // Then
-        this.mockMvc
-                .perform(get("/cars/get-car/" + idSearched))
+        mockMvc.perform(get("/cars/get-car/" + idSearched))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Car not found"));
 
@@ -379,12 +364,10 @@ class CarControllerTest{
     @WithMockUser(username = "user@user.com", password = "userpass", roles = "CLIENT")
     void getAll_Found() throws Exception {
 
-        List<CarDTOAndBrand> carDTOAndBrands = Arrays.asList(carDTOAndBrandToyota, carDTOAndBrandHonda);
         List<Car> cars = Arrays.asList(carToyota, carHonda);
 
         when(carService.getAllCars()).thenReturn(CompletableFuture.completedFuture(cars));
 
-        // When
         when(carDTOAndBrandMapper.carToCarDTOAndBrand(any(Car.class))).thenAnswer(invocation -> {
             Car car = invocation.getArgument(0);
             return car.getId() == 1 ? carDTOAndBrandToyota : carDTOAndBrandHonda;

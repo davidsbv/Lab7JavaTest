@@ -51,7 +51,7 @@ class CarServiceImplTest {
     private BrandEntity toyotaBrandEntity, hondaBrandEntity;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
 
         toyotaBrandEntity = new BrandEntity();
         toyotaBrandEntity.setName("Toyota");
@@ -108,7 +108,7 @@ class CarServiceImplTest {
         verify(brandRepository, times(1)).findByNameIgnoreCase("Toyota");
 
         // Veirificar comprobación de inexistencia del coche
-        verify(carRepository,times(1)).existsById(1);
+        verify(carRepository, times(1)).existsById(1);
 
         // Verificar que se accedión al repositorio
         verify(carRepository, times(1)).save(carEntity1);
@@ -222,7 +222,7 @@ class CarServiceImplTest {
     }
 
     @Test
-    void addBunchCarsWhenBrandDoesNotExists(){
+    void addBunchCarsWhenBrandDoesNotExists() {
 
         String noneExistentBrand = "NonexistentBrand";
         toyotaBrand.setName(noneExistentBrand);
@@ -253,7 +253,7 @@ class CarServiceImplTest {
 
         when(carEntityMapper.carEntityToCar(carEntity1)).thenReturn(car1);
         Car carFound = carService.getCarById(1);
-        assertEquals(car1,carFound);
+        assertEquals(car1, carFound);
 
         verify(carRepository, times(1)).findById(1);
         verify(carEntityMapper, times(1)).carEntityToCar(carEntity1);
@@ -303,13 +303,13 @@ class CarServiceImplTest {
     }
 
     @Test
-    void updateCarByIdWhenBrandNotFound(){
+    void updateCarByIdWhenBrandNotFound() {
         Integer id = 1;
         car1.getBrand().setName("NonExistengBrand");
 
         when(brandRepository.findByNameIgnoreCase("NonExistengBrand")).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> carService.updateCarById(id,car1));
+        assertThrows(IllegalArgumentException.class, () -> carService.updateCarById(id, car1));
 
         verify(carRepository, never()).existsById(anyInt());
         verifyNoMoreInteractions(brandRepository, carEntityMapper);
@@ -317,7 +317,7 @@ class CarServiceImplTest {
     }
 
     @Test
-    void updateCarByIdWhenCarIdNotFound(){
+    void updateCarByIdWhenCarIdNotFound() {
 
         Integer id = 77;
 
@@ -331,7 +331,7 @@ class CarServiceImplTest {
     }
 
     @Test
-    void updateCarByIdWhenCarIdIsNull(){
+    void updateCarByIdWhenCarIdIsNull() {
 
         assertThrows(IllegalArgumentException.class, () -> carService.updateCarById(null, car1));
 
@@ -340,7 +340,7 @@ class CarServiceImplTest {
 
     @Test
     void updateBunchCarsSuccess() throws ExecutionException, InterruptedException {
-       List<Car> cars = Arrays.asList(car1, car2);
+        List<Car> cars = Arrays.asList(car1, car2);
 
         // Mock BrandEntityMapper
         when(brandEntityMapper.brandToBrandEntity(any(Brand.class))).thenReturn(toyotaBrandEntity);
@@ -373,7 +373,7 @@ class CarServiceImplTest {
     }
 
     @Test
-    void updateBunchCarsWhenBrandNotFound(){
+    void updateBunchCarsWhenBrandNotFound() {
         Brand nonExistentBrand = new Brand();
         nonExistentBrand.setName("NonExistentBrand");
         car1.setBrand(nonExistentBrand);
@@ -399,7 +399,7 @@ class CarServiceImplTest {
     }
 
     @Test
-    void addBunchCarsWhenIdNotFound(){
+    void addBunchCarsWhenIdNotFound() {
         Integer id = 77;
         car1.setId(id);
         List<Car> cars = Arrays.asList(car1);
@@ -411,7 +411,7 @@ class CarServiceImplTest {
 
         try {
             CompletableFuture<List<Car>> resultFuture = carService.updateBunchCars(cars);
-            assertThrows(IllegalArgumentException.class,  resultFuture::get);
+            assertThrows(IllegalArgumentException.class, resultFuture::get);
 
         } catch (IllegalArgumentException e) {
             assertEquals("Id: 77 does not exist", e.getMessage());
@@ -424,7 +424,7 @@ class CarServiceImplTest {
     }
 
     @Test
-    void addBunchCarsWhenIdNull(){
+    void addBunchCarsWhenIdNull() {
 
         car1.setId(null);
         List<Car> cars = Arrays.asList(car1);
@@ -434,7 +434,7 @@ class CarServiceImplTest {
 
         try {
             CompletableFuture<List<Car>> resultFuture = carService.updateBunchCars(cars);
-            assertThrows(IllegalArgumentException.class,  resultFuture::get);
+            assertThrows(IllegalArgumentException.class, resultFuture::get);
 
         } catch (IllegalArgumentException e) {
             assertEquals("Id: null does not exist", e.getMessage());
@@ -474,7 +474,7 @@ class CarServiceImplTest {
     }
 
     @Test
-    void deleteCarByIdWhenIdNotFound(){
+    void deleteCarByIdWhenIdNotFound() {
         Integer id = 77;
 
         when(carRepository.existsById(id)).thenReturn(false);
@@ -506,12 +506,12 @@ class CarServiceImplTest {
 
         when(carRepository.findAll()).thenReturn(carEntityList);
 
-        when(carEntityMapper.carEntityToCar(any(CarEntity.class))).thenReturn(car1,car2);
+        when(carEntityMapper.carEntityToCar(any(CarEntity.class))).thenReturn(car1, car2);
 
         CompletableFuture<List<Car>> resultFuture = carService.getAllCars();
 
         assertNotNull(resultFuture);
-        List<Car> cars =  resultFuture.get();
+        List<Car> cars = resultFuture.get();
         assertEquals(2, cars.size());
         assertTrue(cars.contains(car1));
         assertTrue(cars.contains(car2));

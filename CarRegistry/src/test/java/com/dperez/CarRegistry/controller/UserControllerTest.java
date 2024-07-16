@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -55,8 +52,6 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
@@ -64,7 +59,7 @@ class UserControllerTest {
 
     @Test
     void signup_Success() throws Exception {
-        SignUpRequest signUpRequest = new SignUpRequest("John Doe","john@test.com", "password123");
+        SignUpRequest signUpRequest = new SignUpRequest("John Doe", "john@test.com", "password123");
         LoginResponse signUpResponse = new LoginResponse();
         signUpResponse.setJwt("Jwt123");
 
@@ -81,7 +76,7 @@ class UserControllerTest {
 
     @Test
     void signup_Failure() throws Exception {
-        SignUpRequest signUpRequest = new SignUpRequest("John Doe","john@example.com", "password123");
+        SignUpRequest signUpRequest = new SignUpRequest("John Doe", "john@example.com", "password123");
 
         when(authenticationService.signup(any(SignUpRequest.class))).thenThrow(new RuntimeException("Email already exists"));
 

@@ -11,56 +11,42 @@ import com.dperez.CarRegistry.service.model.Brand;
 import com.dperez.CarRegistry.service.model.Car;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
-import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
- public class CarServiceImpl implements CarService {
+public class CarServiceImpl implements CarService {
 
+    private static final String ALREADY_EXISTS = "already exists";
+    private static final String DOES_NOT_EXIST = "does not exist";
     @Autowired
     private CarRepository carRepository;
-
     @Autowired
     private BrandRepository brandRepository;
-
     @Autowired
     private CarEntityMapper carEntityMapper;
-
     @Autowired
     private BrandEntityMapper brandEntityMapper;
-
 
     @Override
     public Car addCar(Car car) throws IllegalArgumentException {
 
         // Verifica si la Id ya existe. Lanza una excepción en caso afirmativo.
-        if(car.getId() != null && carRepository.existsById(car.getId())){
+        if (car.getId() != null && carRepository.existsById(car.getId())) {
 
-            throw new IllegalArgumentException("The Id " + car.getId() +" already exists");
+            throw new IllegalArgumentException("The Id " + car.getId() + " " + ALREADY_EXISTS);
         }
 
         // Verificar si la marca existe
         Optional<BrandEntity> brandEntityOptional = brandRepository.findByNameIgnoreCase(car.getBrand().getName());
 
-        if(brandEntityOptional.isEmpty()){
-            throw new IllegalArgumentException("Brand " + car.getBrand().getName() + " does not exist");
+        if (brandEntityOptional.isEmpty()) {
+            throw new IllegalArgumentException("Brand " + car.getBrand().getName() + " " + DOES_NOT_EXIST);
         }
 
         // Obtener la BrandEntity existente y pasar a Brand
@@ -72,7 +58,7 @@ import java.util.stream.Collectors;
 
         // Se pasa car a carEntity para guardar
         CarEntity carEntity = carEntityMapper.carToCarEntity(car);
-       // carEntity.setBrand((brand)); // Se asocia la brand existente
+        // carEntity.setBrand((brand)); // Se asocia la brand existente
 
         // Se guarda la CarEntity en la base de datos
         CarEntity savedCarEntity = carRepository.save(carEntity);
@@ -89,14 +75,14 @@ import java.util.stream.Collectors;
         try {
             // Verificar si la id existe y si la marca está en la base de datos
             List<Car> addedCars = cars.stream().map(car -> {
-                if ((car.getId() != null) && carRepository.existsById(car.getId())){
-                    throw new IllegalArgumentException("The Id " + car.getId() + " already exists");
+                if ((car.getId() != null) && carRepository.existsById(car.getId())) {
+                    throw new IllegalArgumentException("The Id " + car.getId() + " " + ALREADY_EXISTS);
                 }
                 // Se obtienen las marcas de los coches a actualizar
                 Optional<BrandEntity> brandEntityOptional = brandRepository.findByNameIgnoreCase(car.getBrand().getName());
 
-                if (brandEntityOptional.isEmpty()){
-                    throw new IllegalArgumentException("Brand " + car.getBrand().getName() + " does not exist");
+                if (brandEntityOptional.isEmpty()) {
+                    throw new IllegalArgumentException("Brand " + car.getBrand().getName() + " " + DOES_NOT_EXIST);
                 }
 
                 // Toma la BrandEntity, se le asigna a cada CarEntity que se ha transformado previamente de Car
@@ -111,7 +97,7 @@ import java.util.stream.Collectors;
             }).toList();
 
             long endTime = System.currentTimeMillis();
-            log.info("Total time: " + (endTime-starTime) + "ms");
+            log.info("Total time: " + (endTime - starTime) + "ms");
 
             // Se devulven los coches guardados
             return CompletableFuture.completedFuture(addedCars);
@@ -140,20 +126,19 @@ import java.util.stream.Collectors;
         // Verifica si la Marca del objeto Car existe
         Optional<BrandEntity> brandEntityOptional = brandRepository.findByNameIgnoreCase(car.getBrand().getName());
 
-        if (brandEntityOptional.isEmpty()){
+        if (brandEntityOptional.isEmpty()) {
             log.error("Unknown id");
-            throw new IllegalArgumentException("Brand with name " + car.getBrand() + " does not exist.");
+            throw new IllegalArgumentException("Brand with name " + car.getBrand() + " " + DOES_NOT_EXIST);
         }
 
         // Verifica si la Id existe. Lanza excepción en caso negativo. En caso afirmativo actualiza los datos
-        if(id == null || !carRepository.existsById(id)){
+        if (id == null || !carRepository.existsById(id)) {
             log.error("Unknown id");
-           throw new IllegalArgumentException("Id " + id + " does not exist.");
-        }
-        else {
+            throw new IllegalArgumentException("Id " + id + " " + DOES_NOT_EXIST);
+        } else {
             // Se obtiene la BrandEntity existente y se asocia a la carEntity a actualizar
             BrandEntity brandEntity = brandEntityOptional.get();
-            log.info("Marca " + brandEntity.toString() + " encontrada");
+            log.info("Marca " + brandEntity + " encontrada");
             CarEntity carEntity = carEntityMapper.carToCarEntity(car);
 
             // Seteo de la id y la marca
@@ -180,12 +165,12 @@ import java.util.stream.Collectors;
             Optional<BrandEntity> brandEntityOptional = brandRepository.findByNameIgnoreCase(brandEntity.getName());
 
             // Comprobación de Brand
-            if (brandEntityOptional.isEmpty()){
+            if (brandEntityOptional.isEmpty()) {
                 throw new IllegalArgumentException("Brand: " + brandEntity.getName() + " not yet registred");
             }
             // Comprobación de id
-            if ((car.getId() == null) || (!carRepository.existsById(car.getId()))){
-                throw new IllegalArgumentException("Id: " + car.getId() + " does not exist");
+            if ((car.getId() == null) || (!carRepository.existsById(car.getId()))) {
+                throw new IllegalArgumentException("Id: " + car.getId() + " " + DOES_NOT_EXIST);
             }
 
             // Si existen id y brand de cada car se toman los datos de Brand de la base de datos
@@ -205,7 +190,7 @@ import java.util.stream.Collectors;
         }).toList();
 
         long endTime = System.currentTimeMillis();
-        log.info("Total time: " + (endTime-starTime) + "ms");
+        log.info("Total time: " + (endTime - starTime) + "ms");
 
         return CompletableFuture.completedFuture(updatedCars);
     }
@@ -215,10 +200,9 @@ import java.util.stream.Collectors;
     public void deleteCarById(Integer id) throws IllegalArgumentException {
 
         // Si la id existe borra el coche. En caso contrario lanza error.
-        if(id != null && carRepository.existsById(id)){
+        if (id != null && carRepository.existsById(id)) {
             carRepository.deleteById(id);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Car not found with Id: " + id);
         }
     }
@@ -234,11 +218,11 @@ import java.util.stream.Collectors;
         //MODIFICADO CarEntityMapper.INSTANCE::carEntityToCar POR carEntityMapper::carEntityToCar
         // mejora la velocidad porque no tiene que cargar toda la clase por debajo
         List<Car> allCars = carRepository.findAll().stream()
-                .map(carEntity ->  carEntityMapper.carEntityToCar(carEntity))
+                .map(carEntity -> carEntityMapper.carEntityToCar(carEntity))
                 .toList();
 
         long endTime = System.currentTimeMillis();
-        log.info("Total time: " + (endTime-starTime) + "ms");
+        log.info("Total time: " + (endTime - starTime) + "ms");
 
 
         // Se devuelve el resultado
